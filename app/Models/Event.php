@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Registration;
 
 class Event extends Model
 {
@@ -13,4 +14,9 @@ class Event extends Model
         'max_attendees',
         'ticket_price',
     ];
+
+    public function registrations()
+    {
+        return $this->hasMany(Registration::class);
+    }
 }

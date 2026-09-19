@@ -25,15 +25,22 @@
         @endforeach
     @endif
 
+
     @if($upcomingEvents->count() > 0)
 
         @foreach($upcomingEvents as $event)
 
             <div>
+
                 <h3>{{ $event->name }}</h3>
 
-                <p>Date: {{ $event->date }}</p>
-                <p>Venue: {{ $event->venue }}</p>
+                <p>
+                    Date: {{ $event->date }}
+                </p>
+
+                <p>
+                    Venue: {{ $event->venue }}
+                </p>
 
                 <p>
                     Maximum Attendees:
@@ -54,10 +61,13 @@
                     Ticket Price: ₹{{ $event->ticket_price }}
                 </p>
 
+
                 @if($event->registrations()->count() < $event->max_attendees)
 
-                    <form method="POST"
-                          action="/events/{{ $event->id }}/register">
+                    <form
+                        method="POST"
+                        action="/events/{{ $event->id }}/register"
+                    >
 
                         @csrf
 
@@ -89,6 +99,32 @@
 
                 @endif
 
+
+                <br>
+
+                <!-- Edit Event -->
+                <a href="/events/{{ $event->id }}/edit">
+                    Edit
+                </a>
+
+
+                <!-- Delete Event -->
+                <form
+                    method="POST"
+                    action="/events/{{ $event->id }}"
+                    style="display: inline;"
+                >
+
+                    @csrf
+
+                    @method('DELETE')
+
+                    <button type="submit">
+                        Delete
+                    </button>
+
+                </form>
+
             </div>
 
             <hr>
@@ -102,21 +138,53 @@
     @endif
 
 
+
     <h2>Past Events</h2>
+
 
     @if($pastEvents->count() > 0)
 
         @foreach($pastEvents as $event)
 
             <div>
+
                 <h3>{{ $event->name }}</h3>
 
-                <p>Date: {{ $event->date }}</p>
-                <p>Venue: {{ $event->venue }}</p>
+                <p>
+                    Date: {{ $event->date }}
+                </p>
+
+                <p>
+                    Venue: {{ $event->venue }}
+                </p>
 
                 <p>
                     Ticket Price: ₹{{ $event->ticket_price }}
                 </p>
+
+
+                <!-- Edit Event -->
+                <a href="/events/{{ $event->id }}/edit">
+                    Edit
+                </a>
+
+
+                <!-- Delete Event -->
+                <form
+                    method="POST"
+                    action="/events/{{ $event->id }}"
+                    style="display: inline;"
+                >
+
+                    @csrf
+
+                    @method('DELETE')
+
+                    <button type="submit">
+                        Delete
+                    </button>
+
+                </form>
 
             </div>
 
