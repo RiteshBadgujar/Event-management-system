@@ -1,44 +1,130 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Event</title>
-</head>
-<body>
+@extends('layouts.app')
 
-    <h1>Create Event</h1>
+@section('title', 'Create Event')
 
-    <form method="POST" action="/events">
+@section('content')
 
-        @csrf
+    <h2>Create Event</h2>
 
-        <label>Event Name:</label>
-        <input type="text" name="name" required>
+    @if($errors->any())
 
-        <br><br>
+        @foreach($errors->all() as $error)
 
-        <label>Date:</label>
-        <input type="date" name="date" required>
+            <div class="error">
+                {{ $error }}
+            </div>
 
-        <br><br>
+        @endforeach
 
-        <label>Venue:</label>
-        <input type="text" name="venue" required>
+    @endif
 
-        <br><br>
 
-        <label>Maximum Attendees:</label>
-        <input type="number" name="max_attendees" required>
+    <div class="event-card">
 
-        <br><br>
+        <form method="POST" action="/events">
 
-        <label>Ticket Price:</label>
-        <input type="number" name="ticket_price" step="0.01" required>
+            @csrf
 
-        <br><br>
+            <p>
+                <label>
+                    Event Name:
+                </label>
 
-        <button type="submit">Create Event</button>
+                <br>
 
-    </form>
+                <input
+                    type="text"
+                    name="name"
+                    value="{{ old('name') }}"
+                    placeholder="Enter event name"
+                    required
+                >
+            </p>
 
-</body>
-</html>
+
+            <p>
+                <label>
+                    Date:
+                </label>
+
+                <br>
+
+                <input
+                    type="date"
+                    name="date"
+                    value="{{ old('date') }}"
+                    required
+                >
+            </p>
+
+
+            <p>
+                <label>
+                    Venue:
+                </label>
+
+                <br>
+
+                <input
+                    type="text"
+                    name="venue"
+                    value="{{ old('venue') }}"
+                    placeholder="Enter venue"
+                    required
+                >
+            </p>
+
+
+            <p>
+                <label>
+                    Maximum Attendees:
+                </label>
+
+                <br>
+
+                <input
+                    type="number"
+                    name="max_attendees"
+                    value="{{ old('max_attendees') }}"
+                    min="1"
+                    placeholder="Enter maximum attendees"
+                    required
+                >
+            </p>
+
+
+            <p>
+                <label>
+                    Ticket Price:
+                </label>
+
+                <br>
+
+                <input
+                    type="number"
+                    name="ticket_price"
+                    value="{{ old('ticket_price') }}"
+                    min="0"
+                    step="0.01"
+                    placeholder="Enter ticket price"
+                    required
+                >
+            </p>
+
+
+            <button type="submit">
+                Create Event
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <br>
+
+    <a href="/events">
+        Back to Events
+    </a>
+
+@endsection

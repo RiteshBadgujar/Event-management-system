@@ -1,66 +1,84 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Events</title>
-</head>
-<body>
+@extends('layouts.app')
 
-    <h1>Event Management System</h1>
+@section('title', 'Events')
 
-    <a href="/events/create">Create Event</a>
+@section('content')
+
+    <h2>Events</h2>
+
+    <a href="/events/create">
+        Create Event
+    </a>
+
+    <br><br>
+
+
+    <!-- Search Events -->
+
+    <form method="GET" action="/events/search">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Search event or venue"
+            value="{{ request('search') }}"
+        >
+
+        <button type="submit">
+            Search
+        </button>
+
+    </form>
+
+    <br>
+
+
+    <!-- Upcoming Events -->
 
     <h2>Upcoming Events</h2>
-
-    @if(session('success'))
-        <p>{{ session('success') }}</p>
-    @endif
-
-    @if(session('error'))
-        <p>{{ session('error') }}</p>
-    @endif
-
-    @if($errors->any())
-        @foreach($errors->all() as $error)
-            <p>{{ $error }}</p>
-        @endforeach
-    @endif
-
 
     @if($upcomingEvents->count() > 0)
 
         @foreach($upcomingEvents as $event)
 
-            <div>
+            <div class="event-card">
 
-                <h3>{{ $event->name }}</h3>
+                <h3>
+                    {{ $event->name }}
+                </h3>
 
                 <p>
-                    Date: {{ $event->date }}
+                    <strong>Date:</strong>
+                    {{ $event->date }}
                 </p>
 
                 <p>
-                    Venue: {{ $event->venue }}
+                    <strong>Venue:</strong>
+                    {{ $event->venue }}
                 </p>
 
                 <p>
-                    Maximum Attendees:
+                    <strong>Maximum Attendees:</strong>
                     {{ $event->max_attendees }}
                 </p>
 
                 <p>
-                    Registered:
+                    <strong>Registered:</strong>
                     {{ $event->registrations()->count() }}
                 </p>
 
                 <p>
-                    Available Seats:
+                    <strong>Available Seats:</strong>
                     {{ $event->max_attendees - $event->registrations()->count() }}
                 </p>
 
                 <p>
-                    Ticket Price: ₹{{ $event->ticket_price }}
+                    <strong>Ticket Price:</strong>
+                    ₹{{ $event->ticket_price }}
                 </p>
 
+
+                <!-- Registration -->
 
                 @if($event->registrations()->count() < $event->max_attendees)
 
@@ -95,20 +113,41 @@
 
                 @else
 
-                    <p>Event is Full</p>
+                    <p>
+                        <strong>
+                            Event is Full
+                        </strong>
+                    </p>
 
                 @endif
 
 
                 <br>
 
-                <!-- Edit Event -->
+
+                <!-- Event Actions -->
+
+                <a href="/events/{{ $event->id }}">
+                    View Details
+                </a>
+
+                &nbsp; | &nbsp;
+
                 <a href="/events/{{ $event->id }}/edit">
                     Edit
                 </a>
 
+                &nbsp; | &nbsp;
 
-                <!-- Delete Event -->
+                <a href="/events/{{ $event->id }}/registrations">
+                    View Registrations
+                </a>
+
+                &nbsp;
+
+
+                <!-- Delete -->
+
                 <form
                     method="POST"
                     action="/events/{{ $event->id }}"
@@ -127,49 +166,83 @@
 
             </div>
 
-            <hr>
-
         @endforeach
 
     @else
 
-        <p>No upcoming events.</p>
+        <p>
+            No upcoming events.
+        </p>
 
     @endif
 
 
+    <br>
+
+
+    <!-- Past Events -->
 
     <h2>Past Events</h2>
-
 
     @if($pastEvents->count() > 0)
 
         @foreach($pastEvents as $event)
 
-            <div>
+            <div class="event-card">
 
-                <h3>{{ $event->name }}</h3>
+                <h3>
+                    {{ $event->name }}
+                </h3>
 
                 <p>
-                    Date: {{ $event->date }}
+                    <strong>Date:</strong>
+                    {{ $event->date }}
                 </p>
 
                 <p>
-                    Venue: {{ $event->venue }}
+                    <strong>Venue:</strong>
+                    {{ $event->venue }}
                 </p>
 
                 <p>
-                    Ticket Price: ₹{{ $event->ticket_price }}
+                    <strong>Maximum Attendees:</strong>
+                    {{ $event->max_attendees }}
+                </p>
+
+                <p>
+                    <strong>Registered:</strong>
+                    {{ $event->registrations()->count() }}
+                </p>
+
+                <p>
+                    <strong>Ticket Price:</strong>
+                    ₹{{ $event->ticket_price }}
                 </p>
 
 
-                <!-- Edit Event -->
+                <!-- Event Actions -->
+
+                <a href="/events/{{ $event->id }}">
+                    View Details
+                </a>
+
+                &nbsp; | &nbsp;
+
                 <a href="/events/{{ $event->id }}/edit">
                     Edit
                 </a>
 
+                &nbsp; | &nbsp;
 
-                <!-- Delete Event -->
+                <a href="/events/{{ $event->id }}/registrations">
+                    View Registrations
+                </a>
+
+                &nbsp;
+
+
+                <!-- Delete -->
+
                 <form
                     method="POST"
                     action="/events/{{ $event->id }}"
@@ -188,15 +261,14 @@
 
             </div>
 
-            <hr>
-
         @endforeach
 
     @else
 
-        <p>No past events.</p>
+        <p>
+            No past events.
+        </p>
 
     @endif
 
-</body>
-</html>
+@endsection

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Event;
 
 class Registration extends Model
 {
@@ -11,4 +12,9 @@ class Registration extends Model
         'attendee_name',
         'attendee_email',
     ];
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
 }

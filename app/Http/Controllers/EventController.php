@@ -19,14 +19,68 @@ class EventController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
-        return view('events.index', compact('upcomingEvents', 'pastEvents'));
+        return view(
+            'events.index',
+            compact('upcomingEvents', 'pastEvents')
+        );
     }
+
+
+    // Search events
+    public function search(Request $request)
+    {
+        $search = $request->search;
+
+        $upcomingEvents = Event::whereDate('date', '>=', today())
+            ->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('venue', 'like', '%' . $search . '%');
+            })
+            ->orderBy('date', 'asc')
+            ->get();
+
+        $pastEvents = Event::whereDate('date', '<', today())
+            ->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('venue', 'like', '%' . $search . '%');
+            })
+            ->orderBy('date', 'desc')
+            ->get();
+
+        return view(
+            'events.index',
+            compact('upcomingEvents', 'pastEvents')
+        );
+    }
+
+
+    // Show event details
+    public function show($id)
+    {
+        $event = Event::findOrFail($id);
+
+        $registeredCount = $event->registrations()->count();
+
+        $availableSeats =
+            $event->max_attendees - $registeredCount;
+
+        return view(
+            'events.show',
+            compact(
+                'event',
+                'registeredCount',
+                'availableSeats'
+            )
+        );
+    }
+
 
     // Show create event form
     public function create()
     {
         return view('events.create');
     }
+
 
     // Store new event
     public function store(Request $request)
@@ -48,16 +102,25 @@ class EventController extends Controller
         ]);
 
         return redirect('/events')
-            ->with('success', 'Event created successfully.');
+            ->with(
+                'success',
+                'Event created successfully.'
+            );
     }
+
 
     // Show edit event form
     public function edit($id)
     {
         $event = Event::findOrFail($id);
 
-        return view('events.edit', compact('event'));
+        return view(
+            'events.edit',
+            compact('event')
+        );
     }
+
+
     // Update event
     public function update(Request $request, $id)
     {
@@ -80,8 +143,12 @@ class EventController extends Controller
         ]);
 
         return redirect('/events')
-            ->with('success', 'Event updated successfully.');
+            ->with(
+                'success',
+                'Event updated successfully.'
+            );
     }
+
 
     // Register attendee
     public function register(Request $request, $id)
@@ -89,8 +156,14 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
 
         // Check event capacity
-        if ($event->registrations()->count() >= $event->max_attendees) {
-            return back()->with('error', 'Event is full.');
+        if (
+            $event->registrations()->count()
+            >= $event->max_attendees
+        ) {
+            return back()->with(
+                'error',
+                'Event is full.'
+            );
         }
 
         // Validate attendee details
@@ -100,8 +173,14 @@ class EventController extends Controller
         ]);
 
         // Check duplicate registration
-        $alreadyRegistered = Registration::where('event_id', $event->id)
-            ->where('attendee_email', $request->attendee_email)
+        $alreadyRegistered = Registration::where(
+            'event_id',
+            $event->id
+        )
+            ->where(
+                'attendee_email',
+                $request->attendee_email
+            )
             ->exists();
 
         if ($alreadyRegistered) {
@@ -112,17 +191,66 @@ class EventController extends Controller
         }
 
         // Create registration
-        Registration::create([
+        $registration = Registration::create([
             'event_id' => $event->id,
             'attendee_name' => $request->attendee_name,
             'attendee_email' => $request->attendee_email,
         ]);
 
-        return back()->with(
-            'success',
-            'Registration successful.'
+        // Redirect to ticket
+        return redirect(
+            '/registrations/' . $registration->id . '/ticket'
         );
     }
+
+
+    // Show ticket
+    public function ticket($id)
+    {
+        $registration = Registration::with('event')
+            ->findOrFail($id);
+
+        return view(
+            'events.ticket',
+            compact('registration')
+        );
+    }
+
+
+    // Show event registrations
+    public function registrations($id)
+    {
+        $event = Event::findOrFail($id);
+
+        $registrations = $event->registrations()
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view(
+            'events.registrations',
+            compact(
+                'event',
+                'registrations'
+            )
+        );
+    }
+
+
+    // Cancel registration
+    public function cancelRegistration($id)
+    {
+        $registration = Registration::findOrFail($id);
+
+        $registration->delete();
+
+        return redirect('/events')
+            ->with(
+                'success',
+                'Registration cancelled successfully.'
+            );
+    }
+
+
     // Delete event
     public function destroy($id)
     {
@@ -131,6 +259,9 @@ class EventController extends Controller
         $event->delete();
 
         return redirect('/events')
-            ->with('success', 'Event deleted successfully.');
+            ->with(
+                'success',
+                'Event deleted successfully.'
+            );
     }
 }
