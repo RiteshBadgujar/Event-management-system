@@ -8,6 +8,54 @@ use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
+    // Display dashboard
+    // Display dashboard
+    public function dashboard()
+    {
+        $totalEvents = Event::count();
+
+        $upcomingEvents = Event::whereDate(
+            'date',
+            '>=',
+            today()
+        )->count();
+
+        $pastEvents = Event::whereDate(
+            'date',
+            '<',
+            today()
+        )->count();
+
+        $totalRegistrations = Registration::count();
+
+        $totalCapacity = Event::sum('max_attendees');
+
+        $totalAvailableSeats =
+            $totalCapacity - $totalRegistrations;
+
+        $events = Event::whereDate(
+            'date',
+            '>=',
+            today()
+        )
+            ->withCount('registrations')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return view(
+            'dashboard',
+            compact(
+                'totalEvents',
+                'upcomingEvents',
+                'pastEvents',
+                'totalRegistrations',
+                'totalCapacity',
+                'totalAvailableSeats',
+                'events'
+            )
+        );
+    }
+
     // Display upcoming and past events
     public function index()
     {
@@ -33,16 +81,32 @@ class EventController extends Controller
 
         $upcomingEvents = Event::whereDate('date', '>=', today())
             ->where(function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('venue', 'like', '%' . $search . '%');
+                $query->where(
+                    'name',
+                    'like',
+                    '%' . $search . '%'
+                )
+                    ->orWhere(
+                        'venue',
+                        'like',
+                        '%' . $search . '%'
+                    );
             })
             ->orderBy('date', 'asc')
             ->get();
 
         $pastEvents = Event::whereDate('date', '<', today())
             ->where(function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('venue', 'like', '%' . $search . '%');
+                $query->where(
+                    'name',
+                    'like',
+                    '%' . $search . '%'
+                )
+                    ->orWhere(
+                        'venue',
+                        'like',
+                        '%' . $search . '%'
+                    );
             })
             ->orderBy('date', 'desc')
             ->get();
@@ -59,7 +123,8 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
 
-        $registeredCount = $event->registrations()->count();
+        $registeredCount =
+            $event->registrations()->count();
 
         $availableSeats =
             $event->max_attendees - $registeredCount;
@@ -199,7 +264,9 @@ class EventController extends Controller
 
         // Redirect to ticket
         return redirect(
-            '/registrations/' . $registration->id . '/ticket'
+            '/registrations/'
+            . $registration->id
+            . '/ticket'
         );
     }
 

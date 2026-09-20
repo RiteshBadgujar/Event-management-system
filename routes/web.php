@@ -7,6 +7,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Dashboard
+Route::get('/dashboard', [EventController::class, 'dashboard']);
+
 
 // Event list
 Route::get('/events', [EventController::class, 'index']);
